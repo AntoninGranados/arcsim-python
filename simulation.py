@@ -44,8 +44,6 @@ class ARCSim():
                         if frame % sub_steps == 0:
                             pbar.update(1)
 
-            print("[INFO] Done simulating")
-
         finally:
             pbar.close()
 
@@ -56,6 +54,8 @@ class ARCSim():
                     for l in errors:
                         print(f"[ERROR] {l.decode("utf-8").strip()}")
                     exit(1)
+
+            print("[INFO] Done simulating")
             
             # Wait and terminate the process (ARCSim)
             if process.poll() is None:

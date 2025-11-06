@@ -7,16 +7,16 @@ import json
 from tqdm import tqdm
 from time import sleep
 
-from config import *
-from simulation_object import SimulationObject
+from arcsim_config import *
+from simulation_state import SimulationState
 
 
-class ARCSim():
+class ARCSimRunner():
     def __init__(self, arcsim_build: Path = Path("arcsim", "bin", "arcsim")):
         self.arcsim_build = arcsim_build
 
     def run_simulation(self, config: Config | Path, out_dir: Path):
-        # Create the output directory if it doesn't exist
+        # Create the output directory if it doesn"t exist
         out_dir.mkdir(parents=True, exist_ok=True)
 
         if type(config) == Path:
@@ -34,7 +34,7 @@ class ARCSim():
         process_cmd = " ".join([str(e) for e in cmd])
         process = subprocess.Popen(process_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        # Continually read ARCSim's output and update progress bar
+        # Continually read ARCSim"s output and update progress bar
         try:
             pbar = tqdm(total=int(total_frames), desc="[DEBUG] Simulating", file=sys.stdout)
             while process.poll() is None:
@@ -84,15 +84,15 @@ class ARCSim():
 
         print("\n[INFO] Done generating .obj file")
 
-    def load_obj(self, out_dir: Path) -> SimulationObject:
+    def load_obj(self, out_dir: Path) -> SimulationState:
         print("[INFO] Loading .obj files ...")
         obj_files = glob.glob(str(Path(out_dir, "[!obs]*.obj")))
         obj_files = sorted(obj_files)
 
-        sim_object = SimulationObject()
+        sim_object = SimulationState()
         for obj_file in obj_files:
-            single_sim_obj = SimulationObject.parse_obj(obj_file)
-            sim_object = SimulationObject.merge(sim_object, single_sim_obj)
+            single_sim_obj = SimulationState.parse_obj(obj_file)
+            sim_object = SimulationState.merge(sim_object, single_sim_obj)
 
         print("[INFO] Done loading .obj files")
         return sim_object
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     
     out_dir = Path("out")
 
-    arcsim = ARCSim(Path("arcsim", "bin", "arcsim"))
+    arcsim = ARCSimRunner(Path("arcsim", "bin", "arcsim"))
     arcsim.run_simulation(config, out_dir)
     arcsim.generate_obj(out_dir)
 

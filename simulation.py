@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import glob
 
 from pathlib import Path
 import json
@@ -7,6 +8,7 @@ from tqdm import tqdm
 from time import sleep
 
 from config import *
+from simulation_object import SimulationObject
 
 
 class ARCSim():
@@ -81,6 +83,19 @@ class ARCSim():
             sleep(0.1)
 
         print("\n[INFO] Done generating .obj file")
+
+    def load_obj(self, out_dir: Path) -> SimulationObject:
+        print("[INFO] Loading .obj files ...")
+        obj_files = glob.glob(str(Path(out_dir, "[!obs]*.obj")))
+        obj_files = sorted(obj_files)
+
+        sim_object = SimulationObject()
+        for obj_file in obj_files:
+            single_sim_obj = SimulationObject.parse_obj(obj_file)
+            sim_object = SimulationObject.merge(sim_object, single_sim_obj)
+
+        print("[INFO] Done loading .obj files")
+        return sim_object
 
 
 if __name__ == "__main__":

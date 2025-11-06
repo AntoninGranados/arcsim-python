@@ -95,8 +95,8 @@ class Config(ConfigTemplate):
     def upload(self) -> Path:
         """
         Create a temporary file containing the formated config in a `.json` file
-
-        ! Don't forget to clean the file afer using `cleanup_config` with the path provided by this function
+        
+        ! Don't forget to clean the file afer using `config.cleanup(path)` with the path provided by this function
         """
 
         tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode='w')

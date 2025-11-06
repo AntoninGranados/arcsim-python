@@ -1,33 +1,31 @@
 # Python interface for ARCSim 0.3.1
 
-> This is a work in progress
+> ⚠️ This is a work in progress
 
-This repository provides a small Python interface and utilities to run and visualize cloth simulations using ARCSim 0.3.1. It includes helper scripts to create JSON configuration files, launch offline simulations with the bundled `arcsim` binary, and generate per-frame OBJ meshes and visualization images.
+A lightweight Python interface to run and visualize cloth simulations using ARCSim 0.3.1. Generate JSON configurations, run offline simulations, and produce per-frame OBJ meshes and visualization images.
 
-## Key scripts
-- `simulation.py` — programmatic config builder and simulation runner. It builds a temporary JSON config (using `config.py`), calls `arcsim simulateoffline` and `arcsim generate`, and writes OBJ.
-- `config.py` — small typed helpers for building ARCSim JSON configs (`Vec3`, `Cloth`, `Remesh`, ...), plus `upload_config()` and `cleanup_config()` utilities.
+## Key Components
+- `simulation.py` — handles simulation execution and OBJ generation
+- `mesh.py` — `Mesh` class for OBJ file manipulation (import/export)
+- `config.py` — helper classes for building ARCSim JSON configs
+- `simulation_object.py` — class for simulation object (.obj generating by ARCSim) parsing
 
 ## Prerequisites
-- ARCSim 0.3.1 (fixes for the original scripts can be found in : https://github.com/kaist-silab/arcsim)
-- Python 3.8+ (recommended). The scripts use the following packages:
+- ARCSim 0.3.1 (see https://github.com/kaist-silab/arcsim for fixes on the original scipts)
+- Python 3.8+ with dependencies:
 	- tqdm
-
-You can install Python dependencies with pip:
+	- numpy
+	- scipy
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-## Quick start
-1. Build ARCSim or copy a working `arcsim` binary to `arcsim/bin/arcsim`.
-2. Test the build: Run the simulation script to generate `out/` and OBJ frames:
-    ```bash
-    python simulation.py
-    ```
-    It should run a simulation similar to the one described in `conf/flag.json` (one of the exemples given by the authors)
+## Quick Start
+1. Place the `arcsim` binary in `arcsim/bin/arcsim` (you can also provide another path when instancing `ARCSimSimulation`)
+2. Run the demo simulation:
+```bash
+python simulation.py
+```
 
-## Notes on configuration
-- The `config.py` module provides lightweight classes that produce JSON-ready
-	dictionaries. `simulation.py` demonstrates writing a temporary config file
-	with `upload_config()` and cleaning it up with `cleanup_config()`.
-- You can also inspect or reuse example JSON templates in your ARCSim build at `arcsim/conf/`.
+## Configuration
+JSON configuration files can be created using the helper classes in `config.py` or reused from the examples in `arcsim/conf/`. The `simulation.py` script demonstrates how to generate config structs and run basic simulations (the simulation is a reproduction of `arcsim/conf/flag.json`).

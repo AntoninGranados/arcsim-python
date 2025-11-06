@@ -35,11 +35,12 @@ class Mesh:
             for face in self.faces:
                 f.write(f"f {face[0]+1} {face[1]+1} {face[2]+1}\n")
 
-
+# TODO: make static
 def poisson_plane_mesh(size: tuple[float, float], r: float, k: int = 30) -> Mesh:
     """
     Generates a 2D plane mesh (3D points with z=0) using Poisson Disk Sampling and Delaunay Triangulation
     """
+    print("[INFO] Generating mesh ...")
 
     # Border points
     bottom = np.column_stack([np.arange(0, size[0]+r, r), np.full(int((size[0])/r)+1, 0)])
@@ -75,9 +76,13 @@ def poisson_plane_mesh(size: tuple[float, float], r: float, k: int = 30) -> Mesh
 
     vertices = np.column_stack([vertices, np.zeros(vertices.shape[0])]) # Add z=0 coordinate
 
+    print("[INFO] Done generating mesh")
     return Mesh(vertices=vertices, faces=faces)
 
+# TODO: make static
 def uniform_plane_mesh(size: tuple[float, float], r: float) -> Mesh:
+    print("[INFO] Generating mesh ...")
+
     n_x = int(size[0] / r) + 1
     n_y = int(size[1] / r) + 1
 
@@ -90,4 +95,5 @@ def uniform_plane_mesh(size: tuple[float, float], r: float) -> Mesh:
 
     vertices = np.column_stack([vertices, np.zeros(vertices.shape[0])]) # Add z=0 coordinate
 
+    print("[INFO] Done generating mesh")
     return Mesh(vertices=vertices, faces=faces)

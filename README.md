@@ -5,10 +5,10 @@
 A lightweight Python interface to run and visualize cloth simulations using ARCSim 0.3.1. Generate JSON configurations, run offline simulations, and produce per-frame OBJ meshes and visualization images.
 
 ## Key Components
-- `simuarcsim_runnerlation.py` — handles simulation execution and OBJ generation
+- `arcsim_config.py` — helper classes for building ARCSim JSON configs
+- `arcsim_runner.py` — handles simulation execution and OBJ generation
 - `mesh.py` — `Mesh` class for OBJ file manipulation (import/export)
-- `config.py` — helper classes for building ARCSim JSON configs
-- `simulation_object.py` — class for simulation object (.obj generating by ARCSim) parsing
+- `simulation_state.py` — class for simulation state (.obj generating by ARCSim) parsing/loading/saving
 
 ## Prerequisites
 - ARCSim 0.3.1 (see https://github.com/kaist-silab/arcsim for fixes on the original scipts)
@@ -21,7 +21,7 @@ python -m pip install -r requirements.txt
 ```
 
 ## Quick Start
-1. Place the `arcsim` binary in `arcsim/bin/arcsim` (you can also provide another path when instancing `ARCSimSimulation`)
+1. Place the `arcsim` binary in `arcsim/bin/arcsim` (you can also provide another path when instancing `ARCSimRunner`)
 2. Run the demo simulation:
 ```bash
 python arcsim_runner.py

@@ -12,14 +12,14 @@ from simulation_state import SimulationState
 
 
 class ARCSimRunner():
-    def __init__(self, arcsim_build: Path = Path("arcsim", "bin", "arcsim")):
+    def __init__(self, arcsim_build: Path | str = Path("arcsim", "bin", "arcsim")):
         self.arcsim_build = arcsim_build
 
-    def run_simulation(self, config: Config | Path, out_dir: Path):
+    def run_simulation(self, config: Config | Path | str, out_dir: Path | str) -> Path:
         # Create the output directory if it doesn"t exist
-        out_dir.mkdir(parents=True, exist_ok=True)
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
 
-        if type(config) == Path:
+        if type(config) == Path or type(config) == str:
             config_file = config
         elif type(config) == Config:
             config_file = config.upload()
@@ -67,7 +67,7 @@ class ARCSimRunner():
             elif type(config) == Config:
                 config.cleanup(config_file)
 
-        return out_dir
+        return Path(out_dir)
     
     def generate_obj(self, out_dir: Path):
         # Ex: ./arcsim/bin/arcsim generate ./out/
@@ -147,4 +147,3 @@ if __name__ == "__main__":
     arcsim = ARCSimRunner(Path("arcsim", "bin", "arcsim"))
     arcsim.run_simulation(config, out_dir)
     arcsim.generate_obj(out_dir)
-

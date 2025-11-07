@@ -4,6 +4,7 @@ from typing import Optional, Any
 import json
 import tempfile
 
+# TODO use `@dataclass` decorator instead of this custom ConfigTemplate class
 class ConfigTemplate:
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
@@ -104,5 +105,5 @@ class Config(ConfigTemplate):
         tmp.close()
         return Path(tmp.name)     # tempfile path
 
-    def cleanup(self, config_file: Path):
-        config_file.unlink()
+    def cleanup(self, config_file: Path | str):
+        Path(config_file).unlink()

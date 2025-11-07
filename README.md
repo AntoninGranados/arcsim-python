@@ -16,6 +16,7 @@ A lightweight Python interface to run and visualize cloth simulations using ARCS
 	- tqdm
 	- numpy
 	- scipy
+
 ```bash
 python -m pip install -r requirements.txt
 ```

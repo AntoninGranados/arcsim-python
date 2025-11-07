@@ -8,6 +8,9 @@ class SimulationState:
     nodes: np.ndarray   # World space
     nodes_velocity: Optional[np.ndarray]
 
+    #! Should be implemented ASAP for dataset generation
+    handles: Optional[list[int]]        # TODO: not supported yet
+
     # Faces
     faces: np.ndarray
     face_material: Optional[np.ndarray] # TODO: not supported yet
@@ -31,7 +34,7 @@ class SimulationState:
         if hasattr(self, "nodes_velocity"):
             npz_dict["nodes_velocity"] = self.nodes_velocity    # type: ignore
 
-        np.savez(path, allow_pickle=True, **npz_dict)
+        np.savez_compressed(path, allow_pickle=True, **npz_dict)
 
     @staticmethod
     def load_npz(path: Path | str) -> "SimulationState":
@@ -122,10 +125,10 @@ class SimulationState:
         ind = np.argsort(world_to_mesh[:,0])
         verts = np.array(verts)[world_to_mesh[ind][:,1]]  # Sort so material and world positions are aligned
 
-        sim_object = SimulationState(empty=False)
-        sim_object.faces = np.array(f)
-        sim_object.verts = np.array(verts)
-        # Add dimension for time/frame (useful when merging `SimulationState`s)
-        sim_object.nodes = np.expand_dims(np.array(nodes), axis=0)
+        sim_state = SimulationState(empty=False)
+        sim_state.faces = np.array(f)
+        sim_state.verts = np.array(verts)
+        # Add dimension for time (needed when merging `SimulationState`s)
+        sim_state.nodes = np.expand_dims(np.array(nodes), axis=0)
 
-        return sim_object
+        return sim_state

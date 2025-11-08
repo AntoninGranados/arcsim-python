@@ -1,6 +1,11 @@
 from pathlib import Path
 import numpy as np
 from typing import Optional
+from enum import IntEnum
+
+class NodeType(IntEnum):
+    NORMAL = 0
+    HANDLE = 1
 
 class SimulationState:
     # Nodes
@@ -8,8 +13,7 @@ class SimulationState:
     nodes: np.ndarray   # World space
     nodes_velocity: Optional[np.ndarray]
 
-    #! Should be implemented ASAP for dataset generation
-    handles: Optional[list[int]]        # TODO: not supported yet
+    node_type: np.ndarray
 
     # Faces
     faces: np.ndarray
@@ -30,6 +34,7 @@ class SimulationState:
             "verts": self.verts,
             "nodes": self.nodes,
             "faces": self.faces,
+            "node_type": self.node_type,
         }
         if hasattr(self, "nodes_velocity"):
             npz_dict["nodes_velocity"] = self.nodes_velocity    # type: ignore
@@ -44,6 +49,7 @@ class SimulationState:
         obj.verts = data["verts"]
         obj.nodes = data["nodes"]
         obj.faces = data["faces"]
+        obj.node_type = data["node_type"]
         if "nodes_velocity" in data:
             obj.nodes_velocity = data["nodes_velocity"]
         
@@ -68,6 +74,7 @@ class SimulationState:
 
         merged.verts = obj1.verts   # Assume obj1.verts == obj2.verts
         merged.nodes = np.vstack([obj1.nodes, obj2.nodes])
+        merged.node_type = np.concatenate([obj1.node_type, obj2.node_type])
         if hasattr(obj1, "nodes_velocity") and hasattr(obj2, "nodes_velocity"):
             merged.nodes_velocity = np.vstack([obj1.nodes_velocity, obj2.nodes_velocity])   # type: ignore
 

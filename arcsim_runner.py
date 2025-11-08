@@ -7,30 +7,35 @@ import json
 from tqdm import tqdm
 from time import sleep
 
+import numpy as np
+
 from arcsim_config import *
-from simulation_state import SimulationState
+from simulation_state import SimulationState, NodeType
 
 
 class ARCSimRunner():
-    def __init__(self, arcsim_build: Path | str = Path("arcsim", "bin", "arcsim")):
+    def __init__(self, config: Config | Path | str, arcsim_build: Path | str = Path("arcsim", "bin", "arcsim")):
         self.arcsim_build = arcsim_build
+        
+        self.config = config
+        self.temporary_config = False
+        if type(config) == Path or type(config) == str:
+            self.config_file = config
+        elif type(config) == Config:
+            self.config_file = config.upload()
+            self.temporary_config = True
 
-    def run_simulation(self, config: Config | Path | str, out_dir: Path | str) -> Path:
+    def run_simulation(self, out_dir: Path | str) -> Path:
         # Create the output directory if it doesn"t exist
         Path(out_dir).mkdir(parents=True, exist_ok=True)
 
-        if type(config) == Path or type(config) == str:
-            config_file = config
-        elif type(config) == Config:
-            config_file = config.upload()
-
         # Compute total frames for progress bar
-        config_json = json.load(open(config_file, "r"))
+        config_json = json.load(open(self.config_file, "r"))
         total_frames = config_json["end_time"]/config_json["frame_time"]
         sub_steps = config_json["frame_steps"]
 
         # Ex: ./arcsim/bin/arcsim simulateoffline config.json ./out/
-        cmd = [self.arcsim_build, "simulateoffline", config_file, out_dir]
+        cmd = [self.arcsim_build, "simulateoffline", self.config_file, out_dir]
         process_cmd = " ".join([str(e) for e in cmd])
         process = subprocess.Popen(process_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -64,8 +69,8 @@ class ARCSimRunner():
                 process.terminate()
                 process.kill()
 
-            elif type(config) == Config:
-                config.cleanup(config_file)
+            elif self.temporary_config:
+                self.config.cleanup(self.config_file)   # type: ignore
 
         return Path(out_dir)
     
@@ -89,9 +94,16 @@ class ARCSimRunner():
         obj_files = glob.glob(str(Path(out_dir, "[!obs]*.obj")))
         obj_files = sorted(obj_files)
 
+        config_json = json.load(open(self.config_file, "r"))
+
         sim_object = SimulationState()
         for obj_file in obj_files:
             single_sim_obj = SimulationState.parse_obj(obj_file)
+            
+            single_sim_obj.node_type = np.full(single_sim_obj.nodes.shape[:2], NodeType.NORMAL)
+            if config_json["handles"] is not None:
+                single_sim_obj.node_type[:,config_json["handles"][0]["nodes"]] = NodeType.HANDLE
+
             sim_object = SimulationState.merge(sim_object, single_sim_obj)
 
         print("[INFO] Done loading .obj files")
@@ -143,7 +155,6 @@ if __name__ == "__main__":
 
     
     out_dir = Path("out")
-
-    arcsim = ARCSimRunner(Path("arcsim", "bin", "arcsim"))
-    arcsim.run_simulation(config, out_dir)
+    arcsim = ARCSimRunner(config, Path("arcsim", "bin", "arcsim"))
+    arcsim.run_simulation(out_dir)
     arcsim.generate_obj(out_dir)

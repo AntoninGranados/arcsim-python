@@ -28,6 +28,11 @@ class ARCSimRunner():
     def run_simulation(self, out_dir: Path | str) -> Path:
         # Create the output directory if it doesn"t exist
         Path(out_dir).mkdir(parents=True, exist_ok=True)
+        if len(list(Path(out_dir).iterdir())) > 0:   # The directory is not empty
+               print(f"[WARN] '{out_dir}' is not empty, are you sure you want to use it for the simulation ? [y/N] ", end="")
+               res = input()
+               if res.lower() != "y":
+                   raise FileExistsError(f"The output directory '{out_dir}' is not empty")
 
         # Compute total frames for progress bar
         config_json = json.load(open(self.config_file, "r"))

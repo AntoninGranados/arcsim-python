@@ -1,6 +1,6 @@
 import subprocess
 import sys
-import glob
+# import glob
 
 from pathlib import Path
 import json
@@ -69,9 +69,6 @@ class ARCSimRunner():
                 process.terminate()
                 process.kill()
 
-            elif self.temporary_config:
-                self.config.cleanup(self.config_file)   # type: ignore
-
         return Path(out_dir)
     
     def generate_obj(self, out_dir: Path):
@@ -89,9 +86,10 @@ class ARCSimRunner():
 
         print("\n[INFO] Done generating .obj file")
 
-    def load_obj(self, out_dir: Path) -> SimulationState:
+    def load_state(self, out_dir: Path | str) -> SimulationState:
         print("[INFO] Loading .obj files ...")
-        obj_files = glob.glob(str(Path(out_dir, "[!obs]*.obj")))
+        obj_files = Path(out_dir).glob("[!obs]*.obj")
+        # obj_files = glob.glob(str(Path(out_dir, "[!obs]*.obj")))
         obj_files = sorted(obj_files)
 
         config_json = json.load(open(self.config_file, "r"))
@@ -108,6 +106,10 @@ class ARCSimRunner():
 
         print("[INFO] Done loading .obj files")
         return sim_object
+    
+    def cleanup(self):
+        if self.temporary_config:
+            self.config.cleanup(self.config_file)   # type: ignore
 
 
 if __name__ == "__main__":

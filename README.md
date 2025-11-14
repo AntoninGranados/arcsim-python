@@ -12,10 +12,11 @@ A lightweight Python interface to run and visualize cloth simulations using ARCS
 
 ## Prerequisites
 - ARCSim 0.3.1 (see https://github.com/kaist-silab/arcsim for fixes on the original scipts)
-- Python 3.8+ with dependencies:
+- Python 3.14+ with dependencies:
 	- tqdm
 	- numpy
 	- scipy
+	- parse
 
 ```bash
 python -m pip install -r requirements.txt

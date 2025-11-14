@@ -2,11 +2,13 @@ from pathlib import Path
 import numpy as np
 from typing import Optional
 from enum import IntEnum
+import parse
 
 class NodeType(IntEnum):
     NORMAL = 0
     HANDLE = 1
 
+# TODO: use config when saving
 class SimulationState:
     # Nodes
     verts: np.ndarray   # Material space
@@ -29,7 +31,11 @@ class SimulationState:
     def __init__(self, empty: bool = True):
         self.empty = empty
 
-    def save_npz(self, path: Path | str) -> None:
+    def save(self, path: Path | str) -> None:
+        """
+        Save the `SimulationState` as a `.npz` file
+        """
+
         npz_dict = {
             "verts": self.verts,
             "nodes": self.nodes,
@@ -42,7 +48,11 @@ class SimulationState:
         np.savez_compressed(path, allow_pickle=True, **npz_dict)
 
     @staticmethod
-    def load_npz(path: Path | str) -> "SimulationState":
+    def load(path: Path | str) -> "SimulationState":
+        """
+        Load a `SimulationState` from a `.npz` file
+        """
+        
         data = np.load(path, allow_pickle=True)
         obj = SimulationState(empty=False)
         
@@ -107,26 +117,29 @@ class SimulationState:
         world_to_mesh = {}
 
         with open(path, "r") as file:
-            for line in file:
-                if line.startswith("v"):       # Vertex
-                    parts = line.strip().split()
-                    vertex = list(map(float, parts[1:4]))
-                    nodes.append(vertex)
+            for l in file.readlines():
+                l = l.strip()
+                if l.startswith("v"):       # Vertex
+                    vertices = map(float, parse.parse("v {} {} {}", l)) # type: ignore
+                    nodes.append(list(vertices))
 
-                elif line.startswith("f"):     # Face
-                    parts = line.strip().split()
-                    face = [int(part.split("/")[0]) - 1 for part in parts[1:]]
-                    f.append(face)
-                    
-                    mesh_face = [int(part.split("/")[1]) - 1 for part in parts[1:]]
+                elif l.startswith("f"):     # Face
+                    parts = l.strip().split()
+                    all_faces = map(
+                        lambda s: int(s)-1, parse.parse("f {}/{} {}/{} {}/{}", l)    # type: ignore
+                    )
+
+                    faces = [face for i, face in enumerate(all_faces) if i%2==0]
+                    mesh_faces = [face for i, face in enumerate(all_faces) if i%2==1]
+                    mesh_faces = [int(part.split("/")[1]) - 1 for part in parts[1:]]
+                    f.append(faces)
 
                     for i in range(3):
-                        world_to_mesh[face[i]] = mesh_face[i]
+                        world_to_mesh[faces[i]] = mesh_faces[i]
                 
-                elif line.startswith("ms"):    # Mesh
-                    parts = line.strip().split()
-                    mesh_vertex = list(map(float, parts[1:4]))
-                    verts.append(mesh_vertex)
+                elif l.startswith("ms"):    # Mesh
+                    mesh_vertices = map(float, parse.parse("ms {} {} {}", l))   # type: ignore
+                    verts.append(list(mesh_vertices))
 
         world_to_mesh = np.array(list(world_to_mesh.items()))
         ind = np.argsort(world_to_mesh[:,0])

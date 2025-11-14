@@ -46,6 +46,7 @@ class Rotation(ConfigTemplate):
     def dict(self): return [self.angle, *self.axis.dict()]
 
 class Transform(ConfigTemplate):
+    scale: Optional[float]
     translate: Optional[Vec3]
     rotate: Optional[Rotation]
 

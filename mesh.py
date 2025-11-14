@@ -8,17 +8,18 @@ from arcsim_config import Cloth
 
 def display_cloth(cloth: Cloth) -> None:
     mesh = Mesh.load(cloth.mesh)
+    vert = mesh.vertices
+
+    # Apply transformations
     transform = cloth.transform
     if transform is not None:
-        
-        vert = mesh.vertices
 
-        # Apply scale
+        # Scale
         scale = transform.scale if hasattr(transform, "scale") else None
         if scale is not None:
             vert *= scale
         
-        # Apply rotation
+        # Rotation
         rotate = transform.rotate if hasattr(transform, "rotate") else None
         R = np.eye(3)
         if rotate is not None:
@@ -29,20 +30,20 @@ def display_cloth(cloth: Cloth) -> None:
 
         vert = (R @ vert.T).T
 
-        # Apply translation
+        # Translation
         translate = transform.translate if hasattr(transform, "translate") else None
         if translate is not None:
             vert += np.array([[translate.x, translate.y, translate.z]])
 
-        ax = plt.figure().add_subplot(projection="3d")
-        ax.plot_trisurf(
-            vert[:,0],
-            vert[:,1],
-            vert[:,2],
-            triangles=mesh.faces,
-        )
-        ax.set_aspect("equal")
-        plt.show()
+    ax = plt.figure().add_subplot(projection="3d")
+    ax.plot_trisurf(
+        vert[:,0],
+        vert[:,1],
+        vert[:,2],
+        triangles=mesh.faces,
+    )
+    ax.set_aspect("equal")
+    plt.show()
 
 
 class Mesh:

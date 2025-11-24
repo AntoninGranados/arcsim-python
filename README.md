@@ -1,6 +1,7 @@
 # Python interface for ARCSim 0.3.1
 
-> ⚠️ This is a work in progress
+> [!WARNING]
+> This is a work in progress
 
 A lightweight Python interface to run and visualize cloth simulations using ARCSim 0.3.1. Generate JSON configurations, run offline simulations, and produce per-frame OBJ meshes and visualization images.
 
